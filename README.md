@@ -32,3 +32,7 @@ As of now the validator tool is not in the Python Package repository (PyPi). You
 ```bash
 python -m pip install git+https://github.com/ableinc/validator.git
 ```
+
+## Contributions
+
+This library was designed and inspired by [Jacob Lucas](gitlab.com/Jlucas87). Validator is a python rewrite of the original nodeJS library.
