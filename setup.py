@@ -7,6 +7,7 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="validator",
     version=__version__,
+    license="GNU General Public License v3.0",
     author="AbleInc - Jaylen Douglas",
     author_email="douglas.jaylen@gmail.com",
     description="This is a request handler validation tool for RESTful API endpoints.",
