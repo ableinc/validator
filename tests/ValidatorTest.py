@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import Mock
 from lib.validator import _get_types, _parse_validation_rule, _operation, validate, validator
 from lib.exceptions import ValidationError
-
+import json
 
 class Response:
     def __init__(self):
@@ -90,11 +90,10 @@ class ValidatorTest(unittest.TestCase):
         # Create a fail case
         request_params_copy = self.request_params.copy()
         request_params_copy["key"] = "string|required|"
-        key, value = 'key', "string|required|"
         validation_rules_copy = self.validation_rules.copy()
         validation_rules_copy["key"] = 100
         # Test with callback without strict
-        error_cb = Mock(return_value=None)
+        error_cb = Mock(return_value={ "message": "Error" })
         _operation(validation_rules_copy, request_params_copy, error_cb)
         error_cb.assert_called()
         # Test with callback with strict

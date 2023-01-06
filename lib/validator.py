@@ -10,12 +10,18 @@ def _get_types(type_string):
         return float
     elif type_string == 'dictionary' or type_string == 'dict' or type_string == 'object':
         return dict
+    elif type_string == 'list' or type_string == 'array':
+        return list
     else:
         return str  # default
 
 
 def _parse_validation_rule(key, validation_rule, request_params):
-    value_type, _, length = validation_rule.split('|')
+    try:
+        value_type, _, length = validation_rule.split('|')
+    except Exception:
+        length = ""
+        value_type, _ = validation_rule.split('|')
     # Make value type lowercase for compatibility reasons
     value_type = value_type.lower()
     # Split the length into threshold and value
@@ -31,11 +37,20 @@ def _parse_validation_rule(key, validation_rule, request_params):
     temp_casted_value = str(request_param_value)
     # Do length evaluation
     if length_threshold == "min":
-        if len(temp_casted_value) < int(length_value):
-            raise ValidationError(f"{key} does not meet the minimum length of {length}.")
+        if value_type == "list" or value_type == "array":
+            if len(request_param_value) < int(length_value):
+                raise ValidationError(f"{key} does not meet the minimum length of {length}")
+        else:
+            if len(temp_casted_value) < int(length_value):
+                raise ValidationError(f"{key} does not meet the minimum length of {length}.")
     elif length_threshold == "max":
-        if len(temp_casted_value) > int(length_value):
-            raise ValidationError(f"{key} exceeds the max length of {length_value}.")
+        if value_type == "list" or value_type == "array":
+            if len(request_param_value) > int(length_value):
+                raise ValidationError(f"{key} does not meet the maximum length of {length}")
+        else:
+            if len(temp_casted_value) > int(length_value):
+                raise ValidationError(f"{key} exceeds the maximum length of {length_value}.")
+        
     # Convert string numbers to numerics
     if value_type == "float" and "." in temp_casted_value:
         temp_casted_value = float(temp_casted_value)
@@ -58,7 +73,7 @@ def _operation(validation_rules, request_params, error_cb=None, strict=False):
                 continue
     except Exception as e:
         if error_cb is not None:
-            return error_cb({ "message": e })
+            return error_cb({ "message": e.message })
         raise e
 
 

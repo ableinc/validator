@@ -7,7 +7,9 @@ def get_validation_rules():
         "timestamp": "string|sometimes|max:30",
         "comment": "string|required|min:10",
         "code": "integer|required|",
-        "version": "float|sometimes|"
+        "version": "float|sometimes|",
+        "names": "list|required|max:3",
+        "metadata": "object|required"
     }
 
 
@@ -40,7 +42,9 @@ class Request:
         self.query = {
             "q": "educational courses on economics",
             "comment": "Im looking for an online course on economics.",
-            "code": 100
+            "code": 100,
+            "names": ["John", "Jacob", "Justin"],
+            "metadata": { "hello": "world" }
         }
         self.params = {}
 

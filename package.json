@@ -1,0 +1,44 @@
+{
+    "name": "validrequest",
+    "version": "0.0.1",
+    "description": "This is a request handler validation tool for RESTful API endpoints.",
+    "main": "demo.py",
+    "scripts": {
+        "start": "python3 demo.py",
+        "test": "python3 tests/ValidatorTest.py",
+        "dev": "python3 -m pip install --editable .",
+        "build": "python3 setup.py sdist bdist_wheel",
+        "publish": "twine upload dist/*"
+    },
+    "author": "AbleInc - Jaylen Douglas",
+    "license": "GNU General Public License v3 (GPLv3)",
+    "setup": {
+        "name": "validator",
+        "license": "GNU",
+        "author": "AbleInc - Jaylen Douglas",
+        "author_email": "douglas.jaylen@gmail.com",
+        "description": "This is a request handler validation tool for RESTful API endpoints.",
+        "long_description": "file: README.md",
+        "long_description_content_type": "text/markdown",
+        "url": "https://github.com/ableinc/validrequest",
+        "keywords": ["validation tool", "validation", "api", "restful", "endpoints", "ableinc"],
+        "packages": ["lib"],
+        "classifiers": [
+            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3.10",
+            "Programming Language :: Python :: 3.11",
+            "Programming Language :: Python :: 3.12",
+            "Programming Language :: Python :: 3 :: Only",
+            "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+            "Operating System :: OS Independent"
+        ]
+    },
+    "dependencies": {
+        "pypm2": "0.2.1",
+        "twine": "4.0.2"
+    },
+    "devDependencies": {}
+}

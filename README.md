@@ -14,7 +14,7 @@ def request_handler(req, res, next):
     validation_rules = {
         "q": "string|required|max:100",
         "timestamp": "string|sometimes|max:30",
-        "comment": "string|required|min:10",
+        "names": "list|required|min:3",
         "code": "integer|required|"
     }
     try:
@@ -25,9 +25,13 @@ def request_handler(req, res, next):
 ```
 Refer to the ```demo.py``` file for further implementations.
 
-## How to Instal
+## How to Install
 
-As of now the validator tool is not in the Python Package repository (PyPi). You can still pip install the git repo.
+
+```bash
+python -m pip install validrequest
+```
+or
 
 ```bash
 python -m pip install git+https://github.com/ableinc/validator.git
