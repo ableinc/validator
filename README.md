@@ -5,7 +5,7 @@ This is a request handler validation tool for RESTful API endpoints.
 ## How To Use
 
 ```python
-from validator import validator, ValidationError
+from validrequest import validator, ValidationError
 
 def request_handler(req, res, next):
     # If you're familiar with Express.js req, res, next should be understood

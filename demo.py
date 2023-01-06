@@ -1,4 +1,4 @@
-from lib import validate, validator, ValidationError
+from validrequest import validate, validator, ValidationError
 import json
 
 def get_validation_rules():

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock
-from lib.validator import _get_types, _parse_validation_rule, _operation, validate, validator
-from lib.exceptions import ValidationError
+from validrequest.validator import _get_types, _parse_validation_rule, _operation, validate, validator
+from validrequest.exceptions import ValidationError
 import json
 
 class Response:

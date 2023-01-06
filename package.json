@@ -1,6 +1,6 @@
 {
     "name": "validrequest",
-    "version": "0.0.1",
+    "version": "0.0.3",
     "description": "This is a request handler validation tool for RESTful API endpoints.",
     "main": "demo.py",
     "scripts": {
@@ -22,7 +22,7 @@
         "long_description_content_type": "text/markdown",
         "url": "https://github.com/ableinc/validrequest",
         "keywords": ["validation tool", "validation", "api", "restful", "endpoints", "ableinc"],
-        "packages": ["lib"],
+        "packages": ["validrequest"],
         "classifiers": [
             "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",

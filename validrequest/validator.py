@@ -1,4 +1,4 @@
-from lib.exceptions import ValidationError
+from validrequest.exceptions import ValidationError
 
 
 def _get_types(type_string):
