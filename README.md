@@ -1,4 +1,4 @@
-# Validator
+# Validrequest
 
 This is a request handler validation tool for RESTful API endpoints.
 
@@ -34,7 +34,7 @@ python -m pip install validrequest
 or
 
 ```bash
-python -m pip install git+https://github.com/ableinc/validator.git
+python -m pip install git+https://github.com/ableinc/validrequest.git
 ```
 
 ## Contributions
