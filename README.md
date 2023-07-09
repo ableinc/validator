@@ -39,4 +39,4 @@ python -m pip install git+https://github.com/ableinc/validrequest.git
 
 ## Contributions
 
-This library was designed and inspired by [Jacob Lucas](https://gitlab.com/Jlucas87). Validator is a python rewrite of the original nodeJS library.
+This library was inspired by [Jacob Lucas](https://gitlab.com/Jlucas87) NodeJS equivalent. Validator is a python rewrite of the original library.
