@@ -1,104 +1,116 @@
-from validrequest.exceptions import ValidationError
+from lib.exceptions import ValidationError
+from typing import List, Dict, Callable, Union, Any, Type
+from collections import namedtuple
+from dataclasses import dataclass, field
+
+# Global Type
+ValidationRulesNamedTuple = namedtuple('ValidationRules', ['value_type', 'state', 'min_length', 'max_length'])
+ExpectedTypes = Type[str] | Type[int] | Type[float] | Type[dict] | Type[bool] | tuple[type[int], type[float]]
+
+# Model
+@dataclass
+class ValdationRules():
+    value_type: str
+    state: str
+    min_length: Union[int, None]
+    max_length: Union[int, None]
 
 
-def _get_types(type_string):
-    if type_string == 'string':
+def _len(expected_type: ExpectedTypes, value: Any) -> float | int:
+    if expected_type == str or expected_type == dict: return len(value)
+    if expected_type == float: return float(value)
+    if expected_type == int: return int(value)
+    raise ValidationError(f'Unexpected type ({expected_type}) provided for value: {value}')
+
+
+def _get_types(type_string: str) -> ExpectedTypes:
+    if type_string == 'string' or type_string == 'str':
         return str
-    elif type_string == 'integer':
+    elif type_string == 'integer' or type_string == 'int':
         return int
     elif type_string == 'float':
         return float
+    elif type_string == 'number':
+        return (int, float)
     elif type_string == 'dictionary' or type_string == 'dict' or type_string == 'object':
         return dict
-    elif type_string == 'list' or type_string == 'array':
-        return list
-    else:
-        return str  # default
+    elif type_string == 'boolean' or type_string == 'bool':
+        return bool
+    raise ValidationError(f'Unknown type provided: {type_string}')
 
 
-def _parse_validation_rule(key, validation_rule, request_params):
-    try:
-        value_type, _, length = validation_rule.split('|')
-    except Exception:
-        length = ""
-        value_type, _ = validation_rule.split('|')
-    # Make value type lowercase for compatibility reasons
-    value_type = value_type.lower()
-    # Split the length into threshold and value
-    if length == "":
-        length_threshold, length_value = [None, None]
-    else:
-        length_threshold, length_value = length.split(':')
-    # Get expected value from request_params
-    request_param_value = request_params.get(key, None)
-    if request_param_value == None:
-        raise ValidationError(f"{key} is required, but was not provided.")
-    # For length check only
-    temp_casted_value = str(request_param_value)
-    # Do length evaluation
-    if length_threshold == "min":
-        if value_type == "list" or value_type == "array":
-            if len(request_param_value) < int(length_value):
-                raise ValidationError(f"{key} does not meet the minimum length of {length}")
-        else:
-            if len(temp_casted_value) < int(length_value):
-                raise ValidationError(f"{key} does not meet the minimum length of {length}.")
-    elif length_threshold == "max":
-        if value_type == "list" or value_type == "array":
-            if len(request_param_value) > int(length_value):
-                raise ValidationError(f"{key} does not meet the maximum length of {length}")
-        else:
-            if len(temp_casted_value) > int(length_value):
-                raise ValidationError(f"{key} exceeds the maximum length of {length_value}.")
-        
-    # Convert string numbers to numerics
-    if value_type == "float" and "." in temp_casted_value:
-        temp_casted_value = float(temp_casted_value)
-    if value_type == "integer" and temp_casted_value.isdigit():
-        temp_casted_value = int(temp_casted_value)
-    # Check type
-    if not isinstance(request_param_value, _get_types(value_type)):
-        raise ValidationError(f"{key} is not the expected type. Expected type: {value_type}, actual type: {type(request_param_value)}")
-    return True
+def _unpack_validation_rules(validation_rule: str) -> ValdationRules:
+    _split: List[str] = validation_rule.split('|')
+    _min_length: Union[int, None] = None
+    _max_length: Union[int, None] = None
+
+    for rule in _split[2:]:
+        if 'min' in rule:
+            _min_length = int(rule.split(':')[1])
+        if 'max' in rule:
+            _max_length = int(rule.split(':')[1])
+
+    return ValdationRules(value_type=_split[0], state=_split[1], min_length=_min_length, max_length=_max_length)
 
 
-def _operation(validation_rules, request_params, error_cb=None, strict=False):
-    try:
-        for key, value in validation_rules.items():
-            if strict:
-                _parse_validation_rule(key, value, request_params)
-            elif 'required' in value.lower():
-                _parse_validation_rule(key, value, request_params)
-            else:
-                continue
-    except Exception as e:
-        if error_cb is not None:
-            return error_cb({ "message": e.message })
-        raise e
+def _validate_against_rules(key: str, validation_rule: str, request_params: Dict[str, Any]) -> None:
+    # Unpack rules from pipe delimited string
+    rules: ValdationRules = _unpack_validation_rules(validation_rule)
+    # Create constant of is validation required
+    is_required: bool = rules.state == 'required'
+    # Only validate if field is required
+    if is_required:
+        # Get request value from request parameters/body
+        request_value: ExpectedTypes = request_params.get(key, None)
+        if request_value == None:
+            raise ValidationError(f"{key} is required, but was not provided.")
+        # Get expected type for value
+        expected_type: ExpectedTypes = _get_types(rules.value_type)
+        # Do minimum length validation
+        if rules.min_length and expected_type != bool and _len(expected_type, request_value) < rules.min_length:
+            raise ValidationError(f"{key} does not meet the minimum length requirement of {rules.min_length}.")
+        # Do maximum length validation
+        if rules.max_length and expected_type != bool and _len(expected_type, request_value) > rules.max_length:
+            raise ValidationError(f"{key} exceeds the max length of {rules.max_length}.")
+        # Validate expected type
+        if not isinstance(request_value, expected_type):
+            raise ValidationError(f"{key} is not the expected type. Expected type: {rules.value_type}, actual type: {type(request_value)}")
 
 
-def validate(func):
+def _operation(validation_rules: Dict[str, Any], request_params: Dict[str, Any]):
+    for valdation_rule_key, validation_rule in validation_rules.items():
+        _validate_against_rules(valdation_rule_key, validation_rule.lower(), request_params)
+
+
+def validate(func: Callable):
     def inner(*args, **kwargs):
-        if kwargs["parse_level"] == "query":
-            request_params = kwargs["req"].query
-        else: 
-            request_params = kwargs["req"].params
-        error_cb = None
-        strict = False
+        # Get the Request argument from function definition
+        request_params: Dict[str, Any] = kwargs.get('request', kwargs.get('req', None))
+        if not request_params:
+            raise ValidationError("Request argument must be provided. Acceptable names are 'request' or 'req'")
+        # Get the payload parsing level, this is data send in the request at the query or body level
+        payload_parsing_level: str = kwargs.get("payload_level", None)
+        if not payload_parsing_level:
+            raise ValidationError("payload_level argument must be provided. Example: 'body' or 'query'.")
+        # Finally get the Request data
+        request_params = request_params.__dict__[payload_parsing_level]
+        # Optional callback that will be used if an error is thrown
+        error_cb: Union[Callable, None] = kwargs.get("next", None)
+        # Begin validation process
         try:
-            error_cb = kwargs["next"]
-            strict = kwargs['strict']
-        except Exception:
-            pass
-        _operation(kwargs["validation_rules"], request_params, error_cb, strict)
-        func(*args, **kwargs)
+            _operation(kwargs["validation_rules"], request_params)
+        except Exception as e:
+            if error_cb:
+                return error_cb(f'{type(e).__name__} - {e}')
+            raise e
+        # If validation was successful, run the endpoint as expected.
+        return func(*args, **kwargs)
     return inner
 
 
-def validator(validation_rules, request_params, strict=False):
+def validator(validation_rules: Dict[str, str], request_params: Dict[str, Any]):
     """
     :param validation_rules {dict} The validation rule dictionary
     :param request_params {dict} The incoming request parameters (query)
-    :param strict {bool} If False, it will only validate 'required' fields, else all fields
     """
-    _operation(validation_rules, request_params, strict=strict)
+    _operation(validation_rules, request_params)
