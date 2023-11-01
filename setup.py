@@ -1,4 +1,4 @@
 import setuptools
 setuptools.setup(
-    packages=["validrequest"]
+    packages=["lib"]
 )
