@@ -1,6 +1,9 @@
-import sys
-sys.path.append('.')
-from lib import validate, validator, ValidationError
+try:
+    from validrequest import validate, validator, ValidationError
+except ImportError:
+    import sys
+    sys.path.append('.')
+    from lib import validate, validator, ValidationError
 import json
 from typing import Dict, Any, Callable
 from datetime import datetime
@@ -70,6 +73,7 @@ def next(message, status=400):
 if __name__ == "__main__":
     # Example using the validate decorator
     # next is your error handler callback (similar to Express.js)
+    # payload_level can be: body, query, params or any other request data dictionary
     response = request_with_decorator(request=Request(), response=Response(), next=next, validation_rules=get_validation_rules(), payload_level="body")
     print('Decorator response:', response)
     # Example using the validator function

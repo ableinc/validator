@@ -1,7 +1,7 @@
 from lib.exceptions import ValidationError
 from typing import List, Dict, Callable, Union, Any, Type
 from collections import namedtuple
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 # Global Type
 ValidationRulesNamedTuple = namedtuple('ValidationRules', ['value_type', 'state', 'min_length', 'max_length'])

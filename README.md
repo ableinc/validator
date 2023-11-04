@@ -5,7 +5,7 @@ This is a request handler validation tool for RESTful API endpoints.
 ## How To Use
 
 ```python
-from validator import validator, ValidationError
+from validrequest import validator, ValidationError
 from typing import Dict, Any
 
 def request_handler(request, response, next):
@@ -29,6 +29,7 @@ def request_handler(request, response, next):
     except Exception:
         return next({ "message": "Something else went wrong." })
 
+    # You can also use a decorator (@validate) - see demo.py for an example
 ```
 Refer to the ```demo.py``` file for further implementations.
 
@@ -46,6 +47,10 @@ python -m pip install git+https://github.com/ableinc/validrequest.git
 
 **Breaking Changes** in Version 1.0.0 - Please carefully review the changes below
 
+- import library name has changed from "validator" to "validrequest":
+    ```python
+    from validrequest import validate, validator, ValidationError
+    ```
 - @validate decorator now accepts 'request' or 'req' as Request argument name
 - parse_level was changed to payload_level for @validate decorator
 - error callback must be named "next" for @validate decorator - it will not accept any other argument
